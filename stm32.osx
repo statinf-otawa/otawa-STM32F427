@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF8"?>
+<otawa-script
+	xmlns:xi="http://www.w3.org/2001/XInclude"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	
+	<!-- 	DOCUMENTATION
+
+	-->
+	
+	<!-- DESCRIPTION ::= -->
+		<name>STM32</name>
+		<info>
+			<h1>STM32F427 micro-architecture support</h1>
+			<p></p>
+		</info>
+		<path to="stm32"/>
+
+		<!-- CONFIGURATION ::= -->
+		<configuration>
+            <item name="EPG" type="bool" default="false" label="Export the ParExeGraph">
+				<help>Export the Parametric Execution Graphes built during WCET computation. User will have to create a directory named ParExeGraph in the directory he calls owcet from. The graph will be saved in the directory. Please note that generating the graphs can take an enormous amount of time, even longer than calculating the WCET.
+				</help>
+			</item>
+	
+			<item name="LOG" type="bool" default="false" label="Write log file">
+				<help>By setting this to true, all warning messages occured during the execution of the feature xilinx::BBTimerXilinxxx will be written into "program.log" file. "program" is the input binary file of owcet. 
+				</help>
+			</item>
+		</configuration>
+		
+	<!-- IDENTIFICATION ::= -->
+		<id>
+            <arch>armv7-r</arch>
+            <mach>Zynq UltraScale+ MPSoC, Arm cortex R5F</mach>
+		</id>
+	
+	<!-- PLATFORM ::= -->
+	<platform>
+        <xi:include href="stm32/pipeline.xml"/>
+        <xi:include href="stm32/cache.xml"/>
+        <xi:include href="stm32/memory.xml"/>
+        <xi:include href="stm32/bht.xml"/>
+
+	</platform>
+
+	<!-- SCRIPT ::= -->
+	<script>
+		
+            <xsl:if test="$EPG!=0">
+                <config name="otawa::GRAPHS_OUTPUT_DIRECTORY" value="ParExeGraph"/>
+            </xsl:if>
+            <config name="otawa::stm32::WRITE_LOG" value="{$LOG}"/>
+            <config name="otawa::ipet::EXPLICIT" value="true"/>
+
+            <step processor="otawa::Virtualizer"/>
+
+            <step require="otawa::ICACHE_CATEGORY2_FEATURE"/>
+            <step processor="otawa::stm32::PrefetchEventBuilder"/>
+
+            <step require="otawa::hard::BHT_FEATURE"/>
+
+            <step require="otawa::dcache::CLP_ACCESS_FEATURE"/>
+            <step require="otawa::dcache::MAY_FEATURE"/>
+            <step require="otawa::dcache::PERS_FEATURE"/>
+            <step require="otawa::dcache::MUST_FEATURE"/>
+            <step require="otawa::dcache::MULTI_PERS_FEATURE"/>
+            <step require="otawa::dcache::CATEGORY_FEATURE"/>
+            <step require="otawa::dcache::EVENTS_FEATURE"/>
+
+            <step processor="otawa::stm32::BBTimerXilinxA9"/>
+    
+            <step require="otawa::ipet::WCET_FEATURE"/>	
+
+	</script>
+</otawa-script>

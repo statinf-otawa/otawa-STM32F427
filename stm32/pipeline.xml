@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor class="otawa::hard::Processor"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	
+	<!-- DOCUMENTATION
+		
+	-->
+    <!-- TODO : rewrite arch, model-->
+	<arch>armv7E-M</arch>
+	<model>STM32F427</model>
+	<stages> 
+
+	</stages>
+</processor>
