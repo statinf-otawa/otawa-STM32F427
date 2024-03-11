@@ -5,9 +5,115 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
     <!-- DOCUMENTATION
-       
+       https://www.st.com/content/ccc/resource/technical/document/datasheet/03/b4/b2/36/4c/72/49/29/DM00071990.pdf/files/DM00071990.pdf/jcr:content/translations/en.DM00071990.pdf
 	-->
     <banks> 
+        <bank>
+            <name>FlashMemory</name> 
+            <address><offset>0x08000000</offset></address> <!-- Range is 0x0800_0000 to 0x081F_FFFF -->
+            <size>0x200000</size> <!-- 2 Mbytes -->
+            <type>ROM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+        </bank>
 
+        <bank>
+            <name>CcmDataRAM</name> 
+            <address><offset>0x10000000</offset></address> <!-- Range is 0x1000_0000 to 0x1000_FFFF -->
+            <size>0x10000</size> <!-- 64 Kbytes -->
+            <type>SRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <cachable>true</cachable>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>SRAM112</name> 
+            <address><offset>0x20000000</offset></address> <!-- Range is 0x2000_0000 to 0x2001_BFFF -->
+            <size>0x1C000</size> <!-- 112 Kbytes -->
+            <type>SRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <cachable>true</cachable>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>SRAM16</name> 
+            <address><offset>0x2001C000</offset></address> <!-- Range is 0x2001_C000 to 0x2001_FFFF -->
+            <size>0x4000</size> <!-- 16 Kbytes -->
+            <type>SRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <cachable>true</cachable>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>SRAM64</name> 
+            <address><offset>0x20020000</offset></address> <!-- Range is 0x2002_0000 to 0x2002_FFFF -->
+            <size>0x10000</size> <!-- 64 Kbytes -->
+            <type>SRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <cachable>true</cachable>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>APB1</name> 
+            <address><offset>0x40000000</offset></address> <!-- Range is 0x4000_0000 to 0x4000_7FFF -->
+            <size>0x8000</size> <!-- 32 Kbytes -->
+            <type>IO</type> 
+            <write_latency>200</write_latency>
+            <read_latency>200</read_latency>
+            <latency>200</latency>
+        </bank>
+
+        <bank>
+            <name>AHB1</name> 
+            <address><offset>0x40020000</offset></address> <!-- Range is 0x4002_0000 to 0x4007_FFFF -->
+            <size>0x60000</size>
+            <type>IO</type> 
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
+        </bank>
+
+        <bank>
+            <name>AHB2</name> 
+            <address><offset>0x50000000</offset></address> <!-- Range is 0x5000_0000 to 0x5006_0BFF -->
+            <size>0x60C00</size>
+            <type>IO</type> 
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
+        </bank>
+
+        <bank>
+            <name>AHB3</name> 
+            <address><offset>0x60000000</offset></address> <!-- Range is 0x6000_0000 to 0xDFFF_FFFF -->
+            <size>0x80000000</size>
+            <type>IO</type> 
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
+        </bank>
+
+        <bank>
+            <name>CM4IOs</name> 
+            <address><offset>0xE0000000</offset></address> <!-- Range is 0xE000_0000 to 0xE00F_FFFF -->
+            <size>0x100000</size>
+            <type>IO</type> 
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
+        </bank>
     </banks>
 </memory>
