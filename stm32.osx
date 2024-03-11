@@ -37,15 +37,16 @@
 	<!-- PLATFORM ::= -->
 	<platform>
         <xi:include href="stm32/pipeline.xml"/>
-        <xi:include href="stm32/cache.xml"/>
+        <!-- No cache mem.
+            https://community.arm.com/support-forums/f/architectures-and-processors-forum/8757/cortex-m4-l1-data-cache-policy -->
         <xi:include href="stm32/memory.xml"/>
-        <xi:include href="stm32/bht.xml"/>
+        <!-- No branch prediction mechanism. 
+            https://stackoverflow.com/questions/70153316/what-is-conditional-assembly-branch-instruction-duration-for-different-situation#:~:text=1%20Answer&text=The%20Cortex-M4%20does%20not,before%20it%20is%20actually%20taken). -->
 
 	</platform>
 
 	<!-- SCRIPT ::= -->
 	<script>
-		
             <xsl:if test="$EPG!=0">
                 <config name="otawa::GRAPHS_OUTPUT_DIRECTORY" value="ParExeGraph"/>
             </xsl:if>
@@ -53,23 +54,7 @@
             <config name="otawa::ipet::EXPLICIT" value="true"/>
 
             <step processor="otawa::Virtualizer"/>
-
-            <step require="otawa::ICACHE_CATEGORY2_FEATURE"/>
-            <step processor="otawa::stm32::PrefetchEventBuilder"/>
-
-            <step require="otawa::hard::BHT_FEATURE"/>
-
-            <step require="otawa::dcache::CLP_ACCESS_FEATURE"/>
-            <step require="otawa::dcache::MAY_FEATURE"/>
-            <step require="otawa::dcache::PERS_FEATURE"/>
-            <step require="otawa::dcache::MUST_FEATURE"/>
-            <step require="otawa::dcache::MULTI_PERS_FEATURE"/>
-            <step require="otawa::dcache::CATEGORY_FEATURE"/>
-            <step require="otawa::dcache::EVENTS_FEATURE"/>
-
             <step processor="otawa::stm32::BBTimerXilinxA9"/>
-    
             <step require="otawa::ipet::WCET_FEATURE"/>	
-
 	</script>
 </otawa-script>
