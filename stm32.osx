@@ -11,7 +11,7 @@
 		<name>STM32</name>
 		<info>
 			<h1>STM32F427 micro-architecture support</h1>
-			<p></p>
+			<p>Arm cortex M4-F</p>
 		</info>
 		<path to="stm32"/>
 
@@ -30,8 +30,8 @@
 		
 	<!-- IDENTIFICATION ::= -->
 		<id>
-            <arch>armv7-r</arch>
-            <mach>Zynq UltraScale+ MPSoC, Arm cortex R5F</mach>
+            <arch>armv7M-E</arch>
+            <mach>STM32F427-Cortex M4</mach>
 		</id>
 	
 	<!-- PLATFORM ::= -->
@@ -54,7 +54,7 @@
             <config name="otawa::ipet::EXPLICIT" value="true"/>
 
             <step processor="otawa::Virtualizer"/>
-            <step processor="otawa::stm32::BBTimerXilinxA9"/>
+            <step processor="otawa::stm32::BBTimerSTM32M4F"/>
             <step require="otawa::ipet::WCET_FEATURE"/>	
 	</script>
 </otawa-script>

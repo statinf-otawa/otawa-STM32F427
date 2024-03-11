@@ -3,12 +3,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # configuration
 set(SCRIPT	"stm32")
 set(FILES	
-    ""
+    "stm32/memory.xml"
+    "stm32/pipeline.xml"
 )
 
 set(SOURCES
 	hook.cpp
-
+    stm32F427BBTime.cpp
 )
 set(ARM_HOME	"${CMAKE_SOURCE_DIR}/../armv7t")
 set(GLISS_HOME 	"${CMAKE_SOURCE_DIR}/../gliss2")
