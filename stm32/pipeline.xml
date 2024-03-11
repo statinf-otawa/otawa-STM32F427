@@ -6,10 +6,41 @@
 	<!-- DOCUMENTATION
 		
 	-->
-    <!-- TODO : rewrite arch, model-->
 	<arch>armv7E-M</arch>
 	<model>STM32F427</model>
 	<stages> 
-
+        <stage id="FE">
+			<name>Fetch</name>
+			<type>FETCH</type>
+		</stage>
+		<stage id="DE">
+			<name>Decode</name>
+			<type>LAZY</type>
+		</stage>
+        <stage id="EXE">
+			<name>EXE</name>
+			<type>EXEC</type>
+			<fus>
+				<fu id="EXEC_F"> <!-- FPU -->
+					<name>EXEC_F</name>
+					<pipelined>true</pipelined>
+				</fu>
+				<fu id="EXEC_M4">
+					<name>EXEC_M4</name>
+					<pipelined>true</pipelined>
+                    <mem>true</mem>
+				</fu>
+			</fus>
+			<dispatch>
+				<inst> <type>IS_FLOAT</type> <fu ref="EXEC_F"/> </inst>
+				<inst> <type></type> <fu ref="EXEC_M4"/> </inst>
+			</dispatch>
+        </stage>
+        <stage id="WR">
+			<name>Write</name>
+			<type>COMMIT</type>
+			<mem>true</mem>
+            <latency>0</latency>
+		</stage>
 	</stages>
 </processor>
