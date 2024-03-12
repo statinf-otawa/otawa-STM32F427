@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This file has been written following the official documentations :
 // -> Cortex-M4  Revision r0p0 Technical Reference Manual - Section 3.3 : Instruction set summary and Section 7.3 : FPU Programmers Model
-// -> Cortex™ -M4 Technical Reference Manual ARM DDI 0439B Errata 01
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -26,10 +25,21 @@ canon int(32) "M4F_time_pop_pc"
 canon int(32) "M4F_time_pop"
 canon int(32) "M4F_time_semaphore"
 canon int(32) "M4F_time_branch_normal"
-canon int(32) "M4F_time_byte_and_halfword_table_branch"
+canon int(32) "M4F_time_baht_branch"
 canon int(32) "M4F_time_msr"
 canon int(32) "M4F_time_barriers"
 canon int(32) "M4F_time_dsp_inst"
+canon int(32) "M4F_time_v_1c"
+canon int(32) "M4F_time_vdiv"
+canon int(32) "M4F_time_vldm"
+canon int(32) "M4F_time_vldr"
+canon int(32) "M4F_time_vmov"
+canon int(32) "M4F_time_vmul"
+canon int(32) "M4F_time_vpop"
+canon int(32) "M4F_time_vpush"
+canon int(32) "M4F_time_vsqrt_32"
+canon int(32) "M4F_time_vstm"
+canon int(32) "M4F_time_vstr"
 
 macro time(x) = "SET_TIME"(x)
 
@@ -160,3 +170,36 @@ extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thum
         UHASX_thumb2, UHSAX_thumb2, USAX_thumb2
     cortexM4F_time = { time("M4F_time_dsp_inst"); }
 
+extend  VADD_arm, VADD_thumb, VCMP_VCMPE, VCVT_arm, VCVT_thumb, VNMLA_VNMLS_VNMUL_32_T2, VSUB_fp_A1, VSUB_fp_T1
+    cortexM4F_time = { time("M4F_time_v_1c"); }
+
+extend  VDIV_A1_32, VDIV_T1_32
+    cortexM4F_time = { time("M4F_time_vdiv"); }
+
+extend  VLDM_arm, VLDM_thumb // all considered as 'vldm.f64'. TODO: add more precison
+    cortexM4F_time = { time("M4F_time_vldm"); }
+
+extend  VLDR_arm, VLDR_thumb // all considered as 'vldr.f64'. TODO: add more precison
+    cortexM4F_time = { time("M4F_time_vldr"); }
+
+extend  VMOV_arm, VMOV_thumb
+    cortexM4F_time = { time("M4F_time_vmov"); }
+
+extend  VMUL_fp_A1_double, VMUL_fp_A1_quad, VMUL_fp_A2_32, VMUL_fp_T2_32, VMUL_fp_T1_quad, VMUL_fp_T1_double,
+        VMLA_VMLS_fp_A1_double, VMLA_VMLS_fp_A1_quad, VMLA_VMLS_fp_A2_32, VMLA_VMLS_fp_T1_double, VMLA_VMLS_fp_T1_quad, VMLA_VMLS_fp_T2_32
+    cortexM4F_time = { time("M4F_time_vmul"); } // TODO: add more precision
+
+extend  VPOP_arm_list
+    cortexM4F_time = { time("M4F_time_vpop"); } // TODO: add more precison
+
+extend  VPUSH_thumb
+    cortexM4F_time = { time("M4F_time_vpush"); } // TODO: add more precison
+
+extend  VSQRT_32_T1
+    cortexM4F_time = { time("M4F_time_vsqrt_32"); } 
+
+extend  VSTM_arm_list // all considered as 'vstm.f64'. TODO: add more precison
+    cortexM4F_time = { time("M4F_time_vstm"); } 
+ 
+extend  VSTR_thumb, VSTR_arm // all considered as 'vstr.f64'. TODO: add more precison
+    cortexM4F_time = { time("M4F_time_vstr"); }
