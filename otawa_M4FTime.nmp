@@ -1,0 +1,162 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// This file has been written following the official documentations :
+// -> Cortex-M4  Revision r0p0 Technical Reference Manual - Section 3.3 : Instruction set summary and Section 7.3 : FPU Programmers Model
+// -> Cortex™ -M4 Technical Reference Manual ARM DDI 0439B Errata 01
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+canon int(32) "M4F_time_mov_without_pc"
+canon int(32) "M4F_time_mov_with_pc"
+canon int(32) "M4F_time_add_without_pc"
+canon int(32) "M4F_time_add_with_pc"
+canon int(32) "M4F_time_sub"
+canon int(32) "M4F_time_mul_1c"
+canon int(32) "M4F_time_mul_2c"
+canon int(32) "M4F_time_div"
+canon int(32) "M4F_time_others_1c"
+canon int(32) "M4F_time_ld"
+canon int(32) "M4F_time_ldm"
+canon int(32) "M4F_time_ld_pc"
+canon int(32) "M4F_time_ldm_pc"
+canon int(32) "M4F_time_stm"
+canon int(32) "M4F_time_st"
+canon int(32) "M4F_time_strd_ldrd"
+canon int(32) "M4F_time_push"
+canon int(32) "M4F_time_pop_pc"
+canon int(32) "M4F_time_pop"
+canon int(32) "M4F_time_semaphore"
+canon int(32) "M4F_time_branch_normal"
+canon int(32) "M4F_time_byte_and_halfword_table_branch"
+canon int(32) "M4F_time_msr"
+canon int(32) "M4F_time_barriers"
+canon int(32) "M4F_time_dsp_inst"
+
+macro time(x) = "SET_TIME"(x)
+
+
+extend  MOV_imm, MOVW_imm, MOV_shr, MOVT
+    cortexM4F_time = {
+        if rd == 15 then
+            time("M4F_time_mov_with_pc");
+        else
+            time("M4F_time_mov_without_pc");
+        endif;
+    }
+
+extend  MOV_ORR_thumb2, MOV_imm_list, MOV_thumb
+    cortexM4F_time = { time("M4F_time_mov_without_pc"); }
+
+extend  ADD_imm, ADD_shr
+    cortexM4F_time = {
+        if rd == 15 then
+            time("M4F_time_add_with_pc");
+        else
+            time("M4F_time_add_without_pc");
+        endif;
+    }
+
+extend  ADC_thumb, ADD_imm1_thumb, ADD_imm2_thumb, ADD_imm3_thumb, ADD_imm4_thumb, ADD_reg1_thumb
+    cortexM4F_time = { 
+        if rd == 7 then
+            time("M4F_time_add_with_pc");
+        else
+            time("M4F_time_add_without_pc");
+        endif;
+    }
+
+extend  ADD_imm5_thumb
+    cortexM4F_time = { time("M4F_time_add_without_pc"); }
+
+extend  SUB_imm, SUB_shr, SUB_imm_Thumb_list, SUB_reg_thumb2, SUB_thumb2, SBC_imm, 
+        SBC_shr, SBC_thumb2, SBC_thumb, RSB_shr, RSB_imm, RSB_thumb2, RSB_imm_T2
+    cortexM4F_time = { time("M4F_time_sub"); }
+
+extend  MUL, MUL_thumb, MUL_T2, MUL_thumb, SMULL, UMULL, SMLAL, UMLAL
+    cortexM4F_time = { time("M4F_time_mul_1c"); }
+
+extend  MLA, MLS, MLS_thumb2
+    cortexM4F_time = { time("M4F_time_mul_2c"); }
+
+extend  MLA_MUL_thumb2
+    cortexM4F_time = {
+        if (ra.number == 0b1111) then
+            time("M4F_time_mul_1c");
+        else
+            time("M4F_time_mul_2c");
+        endif;
+    }
+
+extend  SDIV_thumb2, UDIV_thumb2
+    cortexM4F_time = { time("M4F_time_div"); }
+
+extend  SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, CMP_shr, CMP_imm, CMP_shr2_thumb, CMP_imm_thumb, 
+        CMP_shr1_thumb, CMP_thumb2, CMN_shr, CMN_imm, COMPARE_thumb, AND_shr, AND_imm, AND_thumb, 
+        AND_thumb2, EOR_imm, EOR_shr, EOR_thumb, EOR_thumb2, EOR_imm_T1, ORR_thumb, ORR_imm, ORR_shr,
+        MVN_ORN_thumb2, MOV_ORR_thumb2, BIC_shr, BIC_imm, BIC_thumb, BIC_thumb2, TST_imm, TST_shr,
+        TEQ_imm, TEQ_shr, LSL_reg_T2, LSL_thumb, LSR_thumb, LSR_thumb2, ASR_thumb, ASR_thumb2, 
+        ROR_thumb, ROR_thumb2, CLZ, CLZ_thumb2, CLZ_T1, UXTH_thumb, UXTAH_UXTH_thumb2, UXTAB_T1, 
+        UXTAB16_UXTB16_thumb2, UXTB_A1, UBFX, SXTB_thumb, SXTH_thumb, SXTAB16_SXTB16_thumb2, SXTAB_SXTB_thumb2,
+        SXTAH_SXTH_thumb2, SXTH_thumb, SXTAH_SXTH_thumb2, BFC_BFI_thumb2, REV_thumb, REV16_thumb,
+        REVSH_thumb, REV16_thumb2, REV_thumb2, REVSH_thumb2, NOP_thumb, NOP_thumb_jer
+    cortexM4F_time = { time("M4F_time_others_1c"); }
+
+extend LDM
+	cortexM4F_time = {
+		if reglist & (1 << 15) then
+			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm_pc"); else time("M4F_time_ld_pc"); endif;
+		else
+			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
+		endif;
+	}
+
+extend  STM
+	cortexM4F_time = {
+		if "elm::ones"(reglist) > 1 then time("M4F_time_stm"); else time("M4F_time_st"); endif;
+	}
+
+extend  LDRH_imm, LDRH_shr, LDRSB_imm, LDRSB_shr, LDRSH_imm, LDRSH_shr
+	cortexM4F_time = { time("M4F_time_ld"); }
+
+extend  LDR_imm, LDR_shr
+	cortexM4F_time = { if rd == 15 then time("M4F_time_ld_pc"); else time("M4F_time_ld"); endif; }
+
+extend  STR_imm, STR_shr, STRH_imm, STRH_shr
+	cortexM4F_time = { time("M4F_time_st"); }
+
+extend  LDRD, STRD_imm, STRD_reg_A1
+    cortexM4F_time = { time("M4F_time_strd_ldrd"); }
+
+extend  PUSH_thumb
+    cortexM4F_time = { time("M4F_time_push"); }
+
+extend  POP_thumb
+    cortexM4F_time = {
+        if P == 1 then
+            time("M4F_time_pop_pc");
+        else    
+            time("M4F_time_pop");
+        endif;
+    }
+
+extend  LDREX, LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
+    cortexA9_time = { time("M4F_time_semaphore"); }
+
+extend  branch, B_thumb, B_thumb_T2, CBNZ_CBZ_thumb, BX_thumb
+    cortexM4F_time = { time("M4F_time_branch_normal"); }
+
+extend  TBB_TBH 
+    cortexM4F_time = { time("M4F_time_baht_branch"); } // baht = byte_and_halfword_table
+
+extend  MSR_imm, MSR_shr, MRS
+    cortexM4F_time = { time("M4F_time_msr"); }
+
+extend  DMB
+    cortexM4F_time = { time("M4F_time_barriers"); }
+
+extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thumb2, SMLALBB_thumb2, SMLALD_thumb2,
+        SMLAL_thumb2, SMLAWB_SMULWB_thumb2, SMLSD_SMUSD_thumb2, SMLSLD_thumb2, SMMLA_SMMUL_thumb2, UMAAL_thumb2, 
+        SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, PKHBT_PKHTB_thumb2, UXTB_T1, UBFX_T1, QADD16_thumb2, QADD8_thumb2, 
+        QADD_thumb2, QASX_thumb2, QDADD_thumb2, QDSUB_thumb2, QSAX_thumb2, QSUB16_thumb2, QSUB8_thumb2, QSUB_thumb2,
+        UHASX_thumb2, UHSAX_thumb2, USAX_thumb2
+    cortexM4F_time = { time("M4F_time_dsp_inst"); }
+
