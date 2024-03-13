@@ -22,7 +22,7 @@
             <name>CcmDataRAM</name> 
             <address><offset>0x10000000</offset></address> <!-- Range is 0x1000_0000 to 0x1000_FFFF -->
             <size>0x10000</size> <!-- 64 Kbytes -->
-            <type>SRAM</type> 
+            <type>SPM</type> 
             <write_latency>50</write_latency>
             <read_latency>50</read_latency>
             <latency>50</latency>
@@ -31,10 +31,10 @@
         </bank>
 
         <bank>
-            <name>SRAM112</name> 
+            <name>SPM112</name> 
             <address><offset>0x20000000</offset></address> <!-- Range is 0x2000_0000 to 0x2001_BFFF -->
             <size>0x1C000</size> <!-- 112 Kbytes -->
-            <type>SRAM</type> 
+            <type>SPM</type> 
             <write_latency>50</write_latency>
             <read_latency>50</read_latency>
             <latency>50</latency>
@@ -43,10 +43,10 @@
         </bank>
 
         <bank>
-            <name>SRAM16</name> 
+            <name>SPM16</name> 
             <address><offset>0x2001C000</offset></address> <!-- Range is 0x2001_C000 to 0x2001_FFFF -->
             <size>0x4000</size> <!-- 16 Kbytes -->
-            <type>SRAM</type> 
+            <type>SPM</type> 
             <write_latency>50</write_latency>
             <read_latency>50</read_latency>
             <latency>50</latency>
@@ -55,10 +55,10 @@
         </bank>
 
         <bank>
-            <name>SRAM64</name> 
+            <name>SPM64</name> 
             <address><offset>0x20020000</offset></address> <!-- Range is 0x2002_0000 to 0x2002_FFFF -->
             <size>0x10000</size> <!-- 64 Kbytes -->
-            <type>SRAM</type> 
+            <type>SPM</type> 
             <write_latency>50</write_latency>
             <read_latency>50</read_latency>
             <latency>50</latency>
