@@ -10,7 +10,7 @@
     cmake . && make install
 ```
 
-## Usage (does not work for now)
+## Usage
 ```bash
     owcet -s stm32 path/to/elf/file functionName [-p CONFIG=x]
 ```
