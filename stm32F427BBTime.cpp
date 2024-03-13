@@ -27,6 +27,7 @@
 #include <elm/io/FileOutput.h>
 #include <elm/data/Vector.h>
 #include "M4FCycleTiming.h"
+#include "armCortexM4_operand.h"
 
 namespace otawa { namespace stm32 {
     using namespace elm::io;
@@ -65,7 +66,7 @@ namespace otawa { namespace stm32 {
 			Write to the log file, some info about the instructions whose
 			cycle timing info has not been found.
 		*/
-        // TODO: finish th
+        // TODO: finish this
 		void dumpUnknowInst() {
 			if (_out == nullptr)
 				return;
@@ -80,6 +81,24 @@ namespace otawa { namespace stm32 {
 			// 	*_out << addr << "; " << inst->inst() << endl;
 			// }
 		}
+
+        void addEdgesForPipelineOrder() override {
+            ParExeGraph::addEdgesForPipelineOrder();
+			// Add latency penalty to Exec-FU nodes
+            for (InstIterator inst(this); inst(); inst++) {
+				// get cycle_time_info of inst
+                m4f_time_t* inst_cycle_timing = getInstCycleTiming(inst->inst());
+                ot::time inst_cost = inst_cycle_timing->ex_cost;
+                if (inst_cycle_timing->multi) {
+                    if (!inst->inst()->isFloat()) { // this check is not really necessary.
+                        inst_cost += getInstNReg(inst->inst());
+                    }
+                }
+                if (inst_cost > 1)
+                    inst->firstFUNode()->setLatency(inst_cost - 1);
+
+            }
+        }
 
         
         void build() override {
@@ -113,7 +132,16 @@ namespace otawa { namespace stm32 {
 			ASSERTP(exec_f, "No FPU fu found");
 			ASSERTP(exec_m4, "No M4 fu found");
 			
-            ParExeGraph::build();
+            // Build the execution graph 
+			createSequenceResources();
+			createNodes();
+			addEdgesForPipelineOrder();
+			addEdgesForFetch();
+			addEdgesForProgramOrder();
+			addEdgesForMemoryOrder();
+			addEdgesForDataDependencies();
+            
+			// dumpUnknowInst();
         }
 
         private:
@@ -123,6 +151,26 @@ namespace otawa { namespace stm32 {
             ParExePipeline *exec_f, *exec_m4;
             FileOutput* _out = nullptr;
             elm::Vector<Address>* _unknown_inst_address = nullptr;
+
+
+            /*
+			Attempts to decode an instruction and return the corresponding behavior "cycle timing behavior".
+			
+			    inst: Instruction decode.
+            */
+            m4f_time_t* getInstCycleTiming(Inst* inst) {
+                void* inst_info = info->decode(inst);
+                m4f_time_t* inst_cycle_timing = xilinxM4FTime(inst_info);
+                info->free(inst_info);
+                return inst_cycle_timing;
+            }
+            
+            t::uint32 getInstNReg(Inst* inst) {
+                void* inst_info = info->decode(inst);
+                t::uint32 inst_n_reg = armV7_NReg(inst_info);
+                info->free(inst_info);
+                return inst_n_reg;
+		    }
 
     };
 
@@ -182,7 +230,6 @@ namespace otawa { namespace stm32 {
 
 	p::declare BBTimerSTM32M4F::reg = p::init("otawa::stm32::BBTimerSTM32M4F", Version(1, 0, 0))
 										.extend<etime::EdgeTimeBuilder>()
-										.require(otawa::hard::CACHE_CONFIGURATION_FEATURE)
 										.maker<BBTimerSTM32M4F>();
 	
 } // namespace stm32
