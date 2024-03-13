@@ -11,6 +11,7 @@ set(SOURCES
 	hook.cpp
     stm32F427BBTime.cpp
     armCortexM4F_time.h
+    M4FCycleTiming.h
 )
 set(ARM_HOME	"${CMAKE_SOURCE_DIR}/../armv7t")
 set(GLISS_HOME 	"${CMAKE_SOURCE_DIR}/../gliss2")

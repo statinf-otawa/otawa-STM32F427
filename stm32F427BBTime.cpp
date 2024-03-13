@@ -26,6 +26,7 @@
 #include <otawa/loader/arm.h>
 #include <elm/io/FileOutput.h>
 #include <elm/data/Vector.h>
+#include "M4FCycleTiming.h"
 
 namespace otawa { namespace stm32 {
     using namespace elm::io;

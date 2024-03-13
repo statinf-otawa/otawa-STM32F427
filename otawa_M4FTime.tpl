@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-xilinx_m4f_time_t *M4F_time_return;
+m4f_time_t *M4F_time_return;
 typedef void (*fun_t)($(proc)_inst_t *inst);
 #define SET_TIME(x)	M4F_time_return = &x
 
@@ -37,7 +37,7 @@ static fun_t time_funs[] = {
  * Get the xilinx_m4f timing.
  * @return xilinx_m4f timing.
  */
-xilinx_m4f_time_t *xilinxM4FTime(void *_inst) {
+m4f_time_t *xilinxM4FTime(void *_inst) {
 	arm_inst_t *inst = static_cast<arm_inst_t *>(_inst);
 	time_funs[inst->ident](inst);
 	return M4F_time_return;
