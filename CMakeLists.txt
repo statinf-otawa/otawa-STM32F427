@@ -12,6 +12,7 @@ set(SOURCES
     stm32F427BBTime.cpp
     armCortexM4F_time.h
     M4FCycleTiming.h
+    armCortexM4_operand.h
 )
 set(ARM_HOME	"${CMAKE_SOURCE_DIR}/../armv7t")
 set(GLISS_HOME 	"${CMAKE_SOURCE_DIR}/../gliss2")
@@ -50,6 +51,13 @@ add_custom_command(
 	OUTPUT "armCortexM4F_time.h" DEPENDS "otawa_M4FTime.tpl" "otawa_M4FTime.nmp" ${IRG}
 	COMMAND ${GLISS_ATTR}
 	ARGS ${IRG} -o armCortexM4F_time.h -a cortexM4F_time -t "otawa_M4FTime.tpl" -d "SET_TIME(M4F_time_unknown);" -e otawa_M4FTime.nmp -p
+	VERBATIM
+)
+
+add_custom_command(
+	OUTPUT "armCortexM4_operand.h" DEPENDS "otawa_operand.tpl" "otawa_operand.nmp" ${IRG}
+	COMMAND ${GLISS_ATTR}
+	ARGS ${IRG} -o armCortexM4_operand.h -a arm7_op -t "otawa_operand.tpl" -d "SET_OP(1);" -e otawa_operand.nmp -p
 	VERBATIM
 )
 
