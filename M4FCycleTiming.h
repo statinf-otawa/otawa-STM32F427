@@ -27,7 +27,7 @@ m4f_time_t M4F_time_ld_pc          = {2 + P};
 m4f_time_t M4F_time_ldm_pc         = {1 + P, true}; // LDM and STM cannot be pipelined with preceding or following instructions
 m4f_time_t M4F_time_stm            = {1, true, true}; // nothing can be pipelined after the store
 m4f_time_t M4F_time_st             = {2, false, true}; // nothing can be pipelined after the store
-m4f_time_t M4F_time_strd_ldrd      = {1 + 2}; // LDRD and STRD cannot be pipelined with preceding or following instructions.
+m4f_time_t M4F_time_strd_ldrd      = {1 + 2, false, true}; // LDRD and STRD cannot be pipelined with preceding or following instructions.
 m4f_time_t M4F_time_push           = {1 + 16}; // actually multi but len(reglist) cannot be defined for now. We consider len(reglist) = max = 16
 m4f_time_t M4F_time_pop_pc         = {1 + P + 16}; // actually multi but len(reglist) cannot be defined for now. We consider len(reglist) = max = 16
 m4f_time_t M4F_time_pop            = {1+ 16}; // actually multi but len(reglist) cannot be defined for now. We consider len(reglist) = max = 16
@@ -50,5 +50,5 @@ m4f_time_t M4F_time_vpush          = {1 + 2*16}; // actually multi but len(regli
 m4f_time_t M4F_time_vsqrt_32       = {14};
 m4f_time_t M4F_time_vstm           = {1 + 2*16}; // actually multi but len(reglist) cannot be defined for now. We consider len(reglist) = max = 16
 m4f_time_t M4F_time_vstr           = {3};
-m4f_time_t M4F_time_unknown        = {25, false, true, true};
+m4f_time_t M4F_time_unknown        = {25, true, true, true};
 #include "armCortexM4F_time.h"
