@@ -70,16 +70,16 @@ namespace otawa { namespace stm32 {
 		void dumpUnknowInst() {
 			if (_out == nullptr)
 				return;
-			// for (InstIterator inst(this); inst(); inst++) {
-			// 	if (!getInstCycleTiming(inst->inst())->unknown)
-			// 		continue;
+			for (InstIterator inst(this); inst(); inst++) {
+				if (!getInstCycleTiming(inst->inst())->unknown)
+					continue;
 				
-			// 	auto addr = inst->inst()->address();
-			// 	if (_unknown_inst_address->contains(addr))
-			// 		continue;
-			// 	_unknown_inst_address->add(addr);
-			// 	*_out << addr << "; " << inst->inst() << endl;
-			// }
+				auto addr = inst->inst()->address();
+				if (_unknown_inst_address->contains(addr))
+					continue;
+				_unknown_inst_address->add(addr);
+				*_out << addr << "; " << inst->inst() << endl;
+			}
 		}
 
         void addEdgesForPipelineOrder() override {
@@ -100,6 +100,30 @@ namespace otawa { namespace stm32 {
             }
         }
 
+        void addEdgesForDataDependencies() override {
+            ParExeGraph::addEdgesForDataDependencies();
+            // TODO: Rewrite this. Fow now, we only consider that all instruction dep flag
+            // cannot be pipelined with preceding or following instructions.
+
+            string data_dep("Data dep");
+            ParExeInst* prev_inst = nullptr;
+            bool prev_inst_dep = false;
+            for (InstIterator inst(this); inst(); inst++) {
+                if (prev_inst_dep && prev_inst) {
+                    prev_inst_dep = false;
+                    new ParExeEdge(prev_inst->lastFUNode(), inst->fetchNode(), ParExeEdge::SOLID, 1, data_dep);
+                }
+                    
+				// get cycle_time_info of inst
+                if (getInstCycleTiming(inst->inst())->dep) {
+                    if (prev_inst) {
+                        prev_inst_dep = true;
+                        new ParExeEdge(prev_inst->lastFUNode(), inst->fetchNode(), ParExeEdge::SOLID, 1, data_dep);
+                    }
+                }
+                prev_inst = *inst;
+            }
+        }
         
         void build() override {
 
@@ -140,8 +164,7 @@ namespace otawa { namespace stm32 {
 			addEdgesForProgramOrder();
 			addEdgesForMemoryOrder();
 			addEdgesForDataDependencies();
-            
-			// dumpUnknowInst();
+			dumpUnknowInst();
         }
 
         private:
