@@ -44,7 +44,7 @@ canon int(32) "M4F_time_vstr"
 macro time(x) = "SET_TIME"(x)
 
 
-extend  MOV_imm, MOVW_imm, MOV_shr, MOVT
+extend  MOV_imm, MOVW_imm, MOV_shr, MOVT, MOV_ORR_imm_T2_thumb2, MOV_imm_T3_thumb2, MOV_ORR_reg_thumb2
     cortexM4F_time = {
         if rd == 15 then
             time("M4F_time_mov_with_pc");
@@ -53,8 +53,17 @@ extend  MOV_imm, MOVW_imm, MOV_shr, MOVT
         endif;
     }
 
-extend  MOV_ORR_thumb2, MOV_imm_list, MOV_thumb
-    cortexM4F_time = { time("M4F_time_mov_without_pc"); }
+extend  MOV_imm_thumb
+    cortexM4F_time = { time("M4F_time_mov_with_pc"); }
+
+extend  MOV_imm_T2, MOV_imm_T3
+    cortexM4F_time = {
+        if Rd == 15 then
+            time("M4F_time_mov_with_pc");
+        else
+            time("M4F_time_mov_without_pc");
+        endif;
+    }
 
 extend  ADD_imm, ADD_shr
     cortexM4F_time = {
@@ -77,8 +86,8 @@ extend  ADC_thumb, ADD_imm1_thumb, ADD_imm2_thumb, ADD_imm3_thumb, ADD_imm4_thum
 extend  ADD_imm5_thumb
     cortexM4F_time = { time("M4F_time_add_without_pc"); }
 
-extend  SUB_imm, SUB_shr, SUB_imm_Thumb_list, SUB_reg_thumb2, SUB_thumb2, SBC_imm, 
-        SBC_shr, SBC_thumb2, SBC_thumb, RSB_shr, RSB_imm, RSB_thumb2, RSB_imm_T2
+extend  SUB_imm, SUB_shr, SUB_imm_T3, SUB_imm_T4, SUB_reg_thumb2, SUB_imm_T3_thumb2, SUB_imm_T4_thumb2, SUB_reg_thumb2, SBC_imm, 
+        SBC_shr, SBC_imm_thumb2, SBC_reg_thumb2, SBC_thumb, RSB_shr, RSB_imm, RSB_reg_thumb2, RSB_imm_T2
     cortexM4F_time = { time("M4F_time_sub"); }
 
 extend  MUL, MUL_thumb, MUL_T2, MUL_thumb, SMULL, UMULL, SMLAL, UMLAL
@@ -100,14 +109,15 @@ extend  SDIV_thumb2, UDIV_thumb2
     cortexM4F_time = { time("M4F_time_div"); }
 
 extend  SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, CMP_shr, CMP_imm, CMP_shr2_thumb, CMP_imm_thumb, 
-        CMP_shr1_thumb, CMP_thumb2, CMN_shr, CMN_imm, COMPARE_thumb, AND_shr, AND_imm, AND_thumb, 
-        AND_thumb2, EOR_imm, EOR_shr, EOR_thumb, EOR_thumb2, EOR_imm_T1, ORR_thumb, ORR_imm, ORR_shr,
-        MVN_ORN_thumb2, MOV_ORR_thumb2, BIC_shr, BIC_imm, BIC_thumb, BIC_thumb2, TST_imm, TST_shr,
-        TEQ_imm, TEQ_shr, LSL_reg_T2, LSL_thumb, LSR_thumb, LSR_thumb2, ASR_thumb, ASR_thumb2, 
-        ROR_thumb, ROR_thumb2, CLZ, CLZ_thumb2, CLZ_T1, UXTH_thumb, UXTAH_UXTH_thumb2, UXTAB_T1, 
+        CMP_shr1_thumb, CMP_imm_thumb2, CMP_reg_thumb2, CMN_shr, CMN_imm, AND_shr, AND_imm, AND_thumb, 
+        AND_imm_T1, AND_reg_T2, EOR_imm, EOR_shr, EOR_thumb, EOR_imm_thumb2, EOR_reg_thumb2, EOR_imm_T1, ORR_thumb, ORR_imm, ORR_shr,
+        MVN_ORN_imm_thumb2, MVN_ORN_reg_thumb2, BIC_shr, BIC_imm, BIC_imm_thumb2, BIC_reg_thumb2, TST_imm, TST_shr,
+        TEQ_imm, TEQ_shr, LSL_reg_T2, LSR_reg_thumb2, ASR_reg_T2, 
+        ROR_reg_thumb2, CLZ, CLZ_thumb2, CLZ_T1, UXTH_thumb, UXTAH_UXTH_thumb2, UXTAB_T1, 
         UXTAB16_UXTB16_thumb2, UXTB_A1, UBFX, SXTB_thumb, SXTH_thumb, SXTAB16_SXTB16_thumb2, SXTAB_SXTB_thumb2,
-        SXTAH_SXTH_thumb2, SXTH_thumb, SXTAH_SXTH_thumb2, BFC_BFI_thumb2, REV_thumb, REV16_thumb,
-        REVSH_thumb, REV16_thumb2, REV_thumb2, REVSH_thumb2, NOP_thumb, NOP_thumb_jer
+        SXTAH_SXTH_thumb2, SXTH_thumb, BFC_BFI_thumb2, REV_thumb, REV16_thumb,
+        REVSH_thumb, REV16_thumb2, REV_thumb2, REVSH_thumb2, NOP_thumb, NOP_thumb_jer,
+        CMN_shr_thumb, CMP_imm_thumb
     cortexM4F_time = { time("M4F_time_others_1c"); }
 
 extend LDM
@@ -119,21 +129,21 @@ extend LDM
 		endif;
 	}
 
-extend  STM
+extend  STM, STMDB_T1
 	cortexM4F_time = {
-		if "elm::ones"(reglist) > 1 then time("M4F_time_stm"); else time("M4F_time_st"); endif;
+		time("M4F_time_stm");
 	}
 
 extend  LDRH_imm, LDRH_shr, LDRSB_imm, LDRSB_shr, LDRSH_imm, LDRSH_shr
 	cortexM4F_time = { time("M4F_time_ld"); }
 
-extend  LDR_imm, LDR_shr
-	cortexM4F_time = { if rd == 15 then time("M4F_time_ld_pc"); else time("M4F_time_ld"); endif; }
+extend  LDR_imm, LDR_shr, LDR_reg_Thumb, LDR_imm_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_shr_thumb
+	cortexM4F_time = { time("M4F_time_ld"); }
 
-extend  STR_imm, STR_shr, STRH_imm, STRH_shr
+extend  STR_imm, STR_shr, STR_imm, STRH_shr, STR_reg_Thumb, STR_reg_T2
 	cortexM4F_time = { time("M4F_time_st"); }
 
-extend  LDRD, STRD_imm, STRD_reg_A1
+extend  LDRD_imm_T1, STRD_imm, STRD_reg_A1
     cortexM4F_time = { time("M4F_time_strd_ldrd"); }
 
 extend  PUSH_thumb
@@ -148,10 +158,10 @@ extend  POP_thumb
         endif;
     }
 
-extend  LDREX, LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
+extend  LDREX_A1, LDREXB_A1, LDREXD_A1, LDREXH_A1, LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
     cortexA9_time = { time("M4F_time_semaphore"); }
 
-extend  branch, B_thumb, B_thumb_T2, CBNZ_CBZ_thumb, BX_thumb
+extend  B_Cond, SWI, BX_ARM
     cortexM4F_time = { time("M4F_time_branch_normal"); }
 
 extend  TBB_TBH 
@@ -170,36 +180,38 @@ extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thum
         UHASX_thumb2, UHSAX_thumb2, USAX_thumb2
     cortexM4F_time = { time("M4F_time_dsp_inst"); }
 
-extend  VADD_arm, VADD_thumb, VCMP_VCMPE, VCVT_arm, VCVT_thumb, VNMLA_VNMLS_VNMUL_32_T2, VSUB_fp_A1, VSUB_fp_T1
+extend  VADD_fp_A1_double, VADD_fp_A1_quad, VADD_fp_A2_32, VADD_fp_A2_64, VADD_fp_T1_double, VADD_fp_T1_quad, VADD_fp_T2_32, VADD_fp_T2_64, VCMP_VCMPE_64_T1, VCMP_VCMPE_32_T1, VCMP_VCMPE_64_T2, VCMP_VCMPE_32_T2, VCVT_arm_if_A1, VCVT_arm_ff_A1, VCVT_T1_float_int, VCVT_T1_float_fix, VCVT_T1_double_single, VNMLA_VNMLS_VNMUL_32_T2, VSUB_fp_A1, VSUB_fp_T1
     cortexM4F_time = { time("M4F_time_v_1c"); }
 
 extend  VDIV_A1_32, VDIV_T1_32
     cortexM4F_time = { time("M4F_time_vdiv"); }
 
-extend  VLDM_arm, VLDM_thumb // all considered as 'vldm.f64'. TODO: add more precison
+extend  VLDM_arm_A1_01, VLDM_arm_A1_10, VLDM_arm_A2_01, VLDM_arm_A2_10, 
+        VLDMDB_thumb_T1_W1, VLDMDB_thumb_T2_W1, VLDMIA_thumb_T1_W1, VLDMIA_thumb_T2_W1, VLDMIA_thumb_T1_W0, VLDMIA_thumb_T2_W0 // all considered as 'vldm.f64'. TODO: add more precison
     cortexM4F_time = { time("M4F_time_vldm"); }
 
-extend  VLDR_arm, VLDR_thumb // all considered as 'vldr.f64'. TODO: add more precison
+extend  VLDR_A1, VLDR_A2, VLDR_T1, VLDR_T2 // all considered as 'vldr.f64'. TODO: add more precison
     cortexM4F_time = { time("M4F_time_vldr"); }
 
-extend  VMOV_arm, VMOV_thumb
+extend  VMOV_reg_A, VMOV_arm_imm, VMOV_arm_creg_spreg, VMOV_arm_2creg_dereg, VMOV_thumb_imm, VMOV_thumb_reg, VMOV_thumb_creg_spreg, VMOV_thumb_2creg_dereg
     cortexM4F_time = { time("M4F_time_vmov"); }
 
 extend  VMUL_fp_A1_double, VMUL_fp_A1_quad, VMUL_fp_A2_32, VMUL_fp_T2_32, VMUL_fp_T1_quad, VMUL_fp_T1_double,
         VMLA_VMLS_fp_A1_double, VMLA_VMLS_fp_A1_quad, VMLA_VMLS_fp_A2_32, VMLA_VMLS_fp_T1_double, VMLA_VMLS_fp_T1_quad, VMLA_VMLS_fp_T2_32
     cortexM4F_time = { time("M4F_time_vmul"); } // TODO: add more precision
 
-extend  VPOP_arm_list
+extend  VPOP_A1, VPOP_A2
     cortexM4F_time = { time("M4F_time_vpop"); } // TODO: add more precison
 
-extend  VPUSH_thumb
+extend  VPUSH_T1, VPUSH_T2
     cortexM4F_time = { time("M4F_time_vpush"); } // TODO: add more precison
 
 extend  VSQRT_32_T1
     cortexM4F_time = { time("M4F_time_vsqrt_32"); } 
 
-extend  VSTM_arm_list // all considered as 'vstm.f64'. TODO: add more precison
+extend  VSTM_A1_01, VSTM_A1_10, VSTM_A2_01, VSTM_A2_10 // all considered as 'vstm.f64'. TODO: add more precison
     cortexM4F_time = { time("M4F_time_vstm"); } 
  
-extend  VSTR_thumb, VSTR_arm // all considered as 'vstr.f64'. TODO: add more precison
+extend  VSTR_T1, VSTR_T2, VSTR_A1, VSTR_A2 // all considered as 'vstr.f64'. TODO: add more precison
     cortexM4F_time = { time("M4F_time_vstr"); }
+

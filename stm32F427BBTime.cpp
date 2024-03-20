@@ -183,7 +183,7 @@ namespace otawa { namespace stm32 {
             */
             m4f_time_t* getInstCycleTiming(Inst* inst) {
                 void* inst_info = info->decode(inst);
-                m4f_time_t* inst_cycle_timing = xilinxM4FTime(inst_info);
+                m4f_time_t* inst_cycle_timing = stm32M4F(inst_info);
                 info->free(inst_info);
                 return inst_cycle_timing;
             }
