@@ -23,11 +23,9 @@
 			<fus>
 				<fu id="EXEC_F"> <!-- FPU -->
 					<name>EXEC_F</name>
-					<pipelined>true</pipelined>
 				</fu>
 				<fu id="EXEC_M4">
 					<name>EXEC_M4</name>
-					<pipelined>true</pipelined>
                     <mem>true</mem>
 				</fu>
 			</fus>
