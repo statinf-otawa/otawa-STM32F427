@@ -15,12 +15,12 @@ typedef void (*fun_t)($(proc)_inst_t *inst);
 
 /*** function definition ***/
 
-static void xilinx_m4f_time_UNKNOWN($(proc)_inst_t *inst) {
+void stm32_m4f_time_UNKNOWN($(proc)_inst_t *inst) {
 	SET_TIME(M4F_time_unknown);
 }
 
 $(foreach instructions)
-static void xilinx_m4f_time_$(IDENT)($(proc)_inst_t *inst) {
+void stm32_m4f_time_$(IDENT)($(proc)_inst_t *inst) {
 $(cortexM4F_time)
 };
 
@@ -28,16 +28,16 @@ $(end)
 
 
 /*** function table ***/
-static fun_t time_funs[] = {
-	xilinx_m4f_time_UNKNOWN$(foreach instructions),
-	xilinx_m4f_time_$(IDENT)$(end)
+fun_t time_funs[] = {
+	stm32_m4f_time_UNKNOWN$(foreach instructions),
+	stm32_m4f_time_$(IDENT)$(end)
 };
 
 /**
- * Get the xilinx_m4f timing.
- * @return xilinx_m4f timing.
+ * Get the stm32_m4f timing.
+ * @return stm32_m4f timing.
  */
-m4f_time_t *xilinxM4FTime(void *_inst) {
+m4f_time_t *stm32M4F(void *_inst) {
 	arm_inst_t *inst = static_cast<arm_inst_t *>(_inst);
 	time_funs[inst->ident](inst);
 	return M4F_time_return;
