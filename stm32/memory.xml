@@ -7,6 +7,7 @@
     <!-- DOCUMENTATION
        https://www.st.com/content/ccc/resource/technical/document/datasheet/03/b4/b2/36/4c/72/49/29/DM00071990.pdf/files/DM00071990.pdf/jcr:content/translations/en.DM00071990.pdf
 	-->
+    <!-- Note: the latency values could not be found in official datasheets. -->
     <banks> 
         <bank>
             <name>FlashMemory</name> 

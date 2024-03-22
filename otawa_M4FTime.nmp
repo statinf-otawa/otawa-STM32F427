@@ -43,29 +43,10 @@ canon int(32) "M4F_time_vstr"
 
 macro time(x) = "SET_TIME"(x)
 
-
-extend  MOV_imm, MOVW_imm, MOV_shr, MOVT, MOV_ORR_imm_T2_thumb2, MOV_imm_T3_thumb2, MOV_ORR_reg_thumb2
+// ARM
+extend  MOV_imm, MOVW_imm, MOV_shr, MOVT
     cortexM4F_time = {
         if rd == 15 then
-            time("M4F_time_mov_with_pc");
-        else
-            time("M4F_time_mov_without_pc");
-        endif;
-    }
-
-extend  MOV_imm_thumb, MOV_shr2_thumb, MOV_shr_thumb
-    cortexM4F_time = {
-        if rd == 7 then
-            time("M4F_time_mov_with_pc");
-        else
-            time("M4F_time_mov_without_pc");
-        endif;
-    }
-
-
-extend  MOV_imm_T2, MOV_imm_T3
-    cortexM4F_time = {
-        if Rd == 15 then
             time("M4F_time_mov_with_pc");
         else
             time("M4F_time_mov_without_pc");
@@ -81,12 +62,133 @@ extend  ADD_imm, ADD_shr
         endif;
     }
 
+extend  SUB_imm, SUB_shr, SBC_imm, SBC_shr
+    cortexM4F_time = { time("M4F_time_sub"); }
+
+extend  MUL, SMULL, UMULL, SMLAL, UMLAL
+    cortexM4F_time = { time("M4F_time_mul_1c"); }
+
+extend  MLA, MLS
+    cortexM4F_time = { time("M4F_time_mul_2c"); }
+
+extend  CMP_shr, CMP_imm, CMN_shr, CMN_imm, AND_shr, AND_imm, EOR_imm, EOR_shr, ORR_imm, ORR_shr,
+        BIC_shr, BIC_imm, TST_imm, TST_shr, TEQ_imm, TEQ_shr, CLZ, UXTB_A1, UBFX       
+    cortexM4F_time = { time("M4F_time_others_1c"); }
+
+extend LDM
+	cortexM4F_time = {
+		if reglist & (1 << 15) then
+			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm_pc"); else time("M4F_time_ld_pc"); endif;
+		else
+			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
+		endif;
+	}
+
+extend  STM
+	cortexM4F_time = {
+		time("M4F_time_stm");
+	}
+
+extend  LDRH_imm, LDRH_shr, LDRSB_imm, LDRSB_shr, LDRSH_imm, LDRSH_shr
+	cortexM4F_time = { time("M4F_time_ld"); }
+
+extend  LDR_imm, LDR_shr
+	cortexM4F_time = { time("M4F_time_ld"); }
+
+
+extend  STR_imm, STR_shr, STRH_shr
+	cortexM4F_time = { time("M4F_time_st"); }
+
+
+extend  STRD_imm, STRD_reg_A1
+    cortexM4F_time = { time("M4F_time_strd_ldrd"); }
+
+extend  LDREX_A1, LDREXB_A1, LDREXD_A1, LDREXH_A1
+    cortexA9_time = { time("M4F_time_semaphore"); }
+
+extend  B_Cond, SWI, BX_ARM
+    cortexM4F_time = { time("M4F_time_branch_normal"); }
+
+extend  MSR_imm, MSR_shr, MRS
+    cortexM4F_time = { time("M4F_time_msr"); }
+
+extend  DMB
+    cortexM4F_time = { time("M4F_time_barriers"); }
+
+
+// THUMB
+extend  MOV_imm_thumb, MOV_shr2_thumb, MOV_shr_thumb
+    cortexM4F_time = {
+        if rd == 7 then
+            time("M4F_time_mov_with_pc");
+        else
+            time("M4F_time_mov_without_pc");
+        endif;
+    }
+
 extend  ADC_thumb, ADD_imm1_thumb, ADD_imm2_thumb, ADD_imm3_thumb, ADD_imm4_thumb, ADD_reg1_thumb
     cortexM4F_time = { 
         if rd == 7 then
             time("M4F_time_add_with_pc");
         else
             time("M4F_time_add_without_pc");
+        endif;
+    }
+
+extend  ADD_imm5_thumb, ADD_reg2_thumb 
+    // Could not read "rd" from here. So we consider the worst case : 'add pc, rx'
+    cortexM4F_time = { time("M4F_time_add_with_pc"); }
+
+extend  SBC_thumb, SUB_thumb, NEG_thumb
+    cortexM4F_time = { time("M4F_time_sub"); }
+
+extend  MUL_thumb, MUL_thumb
+    cortexM4F_time = { time("M4F_time_mul_1c"); }
+
+extend  CMP_shr2_thumb, CMP_imm_thumb, CMP_shr1_thumb, AND_thumb, EOR_thumb, ORR_thumb, BIC_thumb, LSR_thumb2, LSR_thumb,
+        UXTH_thumb, SXTB_thumb, SXTH_thumb, SXTH_thumb, REV_thumb, REV16_thumb,
+        REVSH_thumb, NOP_thumb, NOP_thumb_jer, CMN_shr_thumb, CMP_imm_thumb, LSL_thumb, ASR_thumb
+    cortexM4F_time = { time("M4F_time_others_1c"); }
+
+extend  LDMIA_thumb
+    cortexM4F_time = {
+			if "elm::ones"(llist) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
+	}
+
+extend  LDRB_thumb, LDRH_thumb, LDRS_thumb
+	cortexM4F_time = { time("M4F_time_ld"); }
+
+extend  LDR_imm_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_shr_thumb,
+        LDR_imm_thumb, LDR_shr_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_imm_Thumb, LDR_reg_Thumb
+	cortexM4F_time = { time("M4F_time_ld"); }
+
+extend  STR_reg_Thumb, STR_reg_Thumb_list, STR_imm_thumb, STRB_thumb, STRH_thumb, STR_shr_thumb, STR_imm2_thumb
+	cortexM4F_time = { time("M4F_time_st"); }
+
+extend  PUSH_thumb
+    cortexM4F_time = { time("M4F_time_push"); }
+
+extend  POP_thumb
+    cortexM4F_time = {
+        if P == 1 then
+            time("M4F_time_pop_pc");
+        else    
+            time("M4F_time_pop");
+        endif;
+    }
+
+extend   B_thumb, BLX_thumb, BX_thumb
+    cortexM4F_time = { time("M4F_time_branch_normal"); }
+
+
+
+// THUMB2
+extend  MOV_ORR_imm_T2_thumb2, MOV_imm_T3_thumb2, MOV_ORR_reg_thumb2
+    cortexM4F_time = {
+        if rd == 15 then
+            time("M4F_time_mov_with_pc");
+        else
+            time("M4F_time_mov_without_pc");
         endif;
     }
 
@@ -97,11 +199,8 @@ extend  ADC_imm_T1, ADC_reg_T2
         else
             time("M4F_time_add_without_pc");
         endif;
-    }    
+    }   
 
-extend  ADD_imm5_thumb, ADD_reg2_thumb 
-        // Could not read "rd" from here. So we consider the worst case : 'add pc, rx'
-    cortexM4F_time = { time("M4F_time_add_with_pc"); }
 
 extend  ADD_imm_T3, ADD_imm_T4, ADD_reg_T3
     cortexM4F_time = { 
@@ -112,14 +211,13 @@ extend  ADD_imm_T3, ADD_imm_T4, ADD_reg_T3
         endif;
     }
 
-extend  SUB_imm, SUB_shr, SUB_imm_T3, SUB_imm_T4, SUB_reg_thumb2, SUB_imm_T3_thumb2, SUB_imm_T4_thumb2, SUB_reg_thumb2, SBC_imm, 
-        SBC_shr, SBC_imm_thumb2, SBC_reg_thumb2, SBC_thumb, RSB_shr, RSB_imm, RSB_reg_thumb2, RSB_imm_T2, SUB_thumb, RSB_thumb2, NEG_thumb
+extend  SUB_imm_T3, SUB_imm_T4, SUB_reg_thumb2, SUB_imm_T3_thumb2, SUB_imm_T4_thumb2, SUB_reg_thumb2, SBC_imm_thumb2, SBC_reg_thumb2, RSB_reg_thumb2, RSB_imm_T2, RSB_thumb2
     cortexM4F_time = { time("M4F_time_sub"); }
 
-extend  MUL, MUL_thumb, MUL_T2, MUL_thumb, SMULL, UMULL, SMLAL, UMLAL, UMULL_thumb2
+extend  MUL_T2, UMULL_thumb2
     cortexM4F_time = { time("M4F_time_mul_1c"); }
 
-extend  MLA, MLS, MLS_thumb2
+extend  MLS_thumb2
     cortexM4F_time = { time("M4F_time_mul_2c"); }
 
 extend  MLA_MUL_thumb2
@@ -134,81 +232,40 @@ extend  MLA_MUL_thumb2
 extend  SDIV_thumb2, UDIV_thumb2
     cortexM4F_time = { time("M4F_time_div"); }
 
-extend  SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, CMP_shr, CMP_imm, CMP_shr2_thumb, CMP_imm_thumb, 
-        CMP_shr1_thumb, CMP_imm_thumb2, CMP_reg_thumb2, CMN_shr, CMN_imm, AND_shr, AND_imm, AND_thumb, 
-        AND_imm_T1, AND_reg_T2, EOR_imm, EOR_shr, EOR_thumb, EOR_imm_thumb2, EOR_reg_thumb2, EOR_imm_T1, ORR_thumb, ORR_imm, ORR_shr,
-        MVN_ORN_imm_thumb2, MVN_ORN_reg_thumb2, BIC_shr, BIC_imm, BIC_imm_thumb2, BIC_reg_thumb2, TST_imm, TST_shr,
-        TEQ_imm, TEQ_shr, LSL_reg_T2, LSR_reg_thumb2, ASR_reg_T2, BIC_thumb, LSR_thumb2, LSR_thumb,
-        ROR_reg_thumb2, CLZ, CLZ_thumb2, CLZ_T1, UXTH_thumb, UXTAH_UXTH_thumb2, UXTAB_T1, 
-        UXTAB16_UXTB16_thumb2, UXTB_A1, UBFX, SXTB_thumb, SXTH_thumb, SXTAB16_SXTB16_thumb2, SXTAB_SXTB_thumb2,
-        SXTAH_SXTH_thumb2, SXTH_thumb, BFC_BFI_thumb2, REV_thumb, REV16_thumb,
-        REVSH_thumb, REV16_thumb2, REV_thumb2, REVSH_thumb2, NOP_thumb, NOP_thumb_jer,
-        CMN_shr_thumb, CMP_imm_thumb, LSL_reg_T2, LSL_thumb, ASR_thumb2, ASR_thumb
+extend  SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, CMP_shr2_thumb, CMP_imm_thumb2, CMP_reg_thumb2, AND_imm_T1, AND_reg_T2, EOR_imm_thumb2, EOR_reg_thumb2, EOR_imm_T1, 
+        MVN_ORN_imm_thumb2, MVN_ORN_reg_thumb2, BIC_imm_thumb2, BIC_reg_thumb2, LSL_reg_T2, LSR_reg_thumb2, ASR_reg_T2, LSR_thumb2, 
+        ROR_reg_thumb2, CLZ_thumb2, CLZ_T1, UXTAH_UXTH_thumb2, UXTAB_T1, UXTAB16_UXTB16_thumb2, SXTAB16_SXTB16_thumb2, SXTAB_SXTB_thumb2,
+        SXTAH_SXTH_thumb2, BFC_BFI_thumb2, REV16_thumb2, REV_thumb2, REVSH_thumb2, LSL_reg_T2, ASR_thumb2
     cortexM4F_time = { time("M4F_time_others_1c"); }
-
-extend LDM
-	cortexM4F_time = {
-		if reglist & (1 << 15) then
-			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm_pc"); else time("M4F_time_ld_pc"); endif;
-		else
-			if "elm::ones"(reglist) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
-		endif;
-	}
 
 extend  LDM_T2
     cortexM4F_time = {
 			if "elm::ones"(register_list) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
 	}
 
-extend  STM, STMDB_T1
+extend  STMDB_T1
 	cortexM4F_time = {
 		time("M4F_time_stm");
 	}
-extend  LDMIA_thumb
-    cortexM4F_time = {
-			if "elm::ones"(llist) > 1 then time("M4F_time_ldm"); else time("M4F_time_ld"); endif;
-	}
 
-extend  LDRH_imm, LDRH_shr, LDRSB_imm, LDRSB_shr, LDRSH_imm, LDRSH_shr, LDRB_thumb, LDRH_thumb, LDRS_thumb
+extend  LDR_reg_T2
 	cortexM4F_time = { time("M4F_time_ld"); }
 
-extend  LDR_imm, LDR_shr, LDR_reg_T2, LDR_imm_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_shr_thumb,
-        LDR_imm_thumb, LDR_shr_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_imm_Thumb, LDR_reg_Thumb
-	cortexM4F_time = { time("M4F_time_ld"); }
 
-extend  STR_imm, STR_shr, STRH_shr, STR_reg_Thumb, STR_reg_Thumb_list, STR_imm_thumb, STRB_thumb, STRH_thumb, STR_shr_thumb, STR_imm2_thumb
-	cortexM4F_time = { time("M4F_time_st"); }
-
-extend  LDRD_imm_T1, STRD_imm, STRD_reg_A1, Load_Store_dual_exclusive_table_branch_thumb2
+extend  LDRD_imm_T1, Load_Store_dual_exclusive_table_branch_thumb2
     cortexM4F_time = { time("M4F_time_strd_ldrd"); }
 
-extend  PUSH_thumb
-    cortexM4F_time = { time("M4F_time_push"); }
 
-extend  POP_thumb
-    cortexM4F_time = {
-        if P == 1 then
-            time("M4F_time_pop_pc");
-        else    
-            time("M4F_time_pop");
-        endif;
-    }
-
-extend  LDREX_A1, LDREXB_A1, LDREXD_A1, LDREXH_A1, LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
+extend  LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
     cortexA9_time = { time("M4F_time_semaphore"); }
 
-extend  B_Cond, SWI, BX_ARM, BLX_imm_T2, BL_imm_T1, B_thumb2, CLZ_thumb2, EOR_thumb2, LSL_reg_T2, LSR_thumb2, TBB_TBH,
-        B_thumb, B_thumb_T2, BLX_thumb, BX_thumb
+
+extend  BLX_imm_T2, BL_imm_T1, B_thumb2, CLZ_thumb2, EOR_thumb2, LSL_reg_T2, LSR_thumb2, B_thumb_T2
     cortexM4F_time = { time("M4F_time_branch_normal"); }
 
 extend  TBB_TBH 
     cortexM4F_time = { time("M4F_time_baht_branch"); } // baht = byte_and_halfword_table
 
-extend  MSR_imm, MSR_shr, MRS
-    cortexM4F_time = { time("M4F_time_msr"); }
-
-extend  DMB
-    cortexM4F_time = { time("M4F_time_barriers"); }
 
 extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thumb2, SMLALBB_thumb2, SMLALD_thumb2,
         SMLAL_thumb2, SMLAWB_SMULWB_thumb2, SMLSD_SMUSD_thumb2, SMLSLD_thumb2, SMMLA_SMMUL_thumb2, UMAAL_thumb2, 
@@ -216,6 +273,9 @@ extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thum
         QADD_thumb2, QASX_thumb2, QDADD_thumb2, QDSUB_thumb2, QSAX_thumb2, QSUB16_thumb2, QSUB8_thumb2, QSUB_thumb2,
         UHASX_thumb2, UHSAX_thumb2, USAX_thumb2
     cortexM4F_time = { time("M4F_time_dsp_inst"); }
+
+
+// FP
 
 extend  VADD_fp_A1_double, VADD_fp_A1_quad, VADD_fp_A2_32, VADD_fp_A2_64, VADD_fp_T1_double, VADD_fp_T1_quad, VADD_fp_T2_32, VADD_fp_T2_64, VCMP_VCMPE_64_T1, VCMP_VCMPE_32_T1, VCMP_VCMPE_64_T2, VCMP_VCMPE_32_T2, VCVT_arm_if_A1, VCVT_arm_ff_A1, VCVT_T1_float_int, VCVT_T1_float_fix, VCVT_T1_double_single, VNMLA_VNMLS_VNMUL_32_T2, VSUB_fp_A1, VSUB_fp_T1
     cortexM4F_time = { time("M4F_time_v_1c"); }
@@ -251,4 +311,3 @@ extend  VSTM_A1_01, VSTM_A1_10, VSTM_A2_01, VSTM_A2_10 // all considered as 'vst
  
 extend  VSTR_T1, VSTR_T2, VSTR_A1, VSTR_A2 // all considered as 'vstr.f64'. TODO: add more precison
     cortexM4F_time = { time("M4F_time_vstr"); }
-
