@@ -3,7 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # configuration
 set(SCRIPT	"stm32")
 set(FILES	
-    "stm32/memory.xml"
+    "stm32/m4_memory.xml"
     "stm32/pipeline.xml"
 )
 

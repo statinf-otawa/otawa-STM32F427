@@ -39,7 +39,7 @@
         <xi:include href="stm32/pipeline.xml"/>
         <!-- No cache mem.
             https://community.arm.com/support-forums/f/architectures-and-processors-forum/8757/cortex-m4-l1-data-cache-policy -->
-        <xi:include href="stm32/memory.xml"/>
+        <xi:include href="stm32/m4_memory.xml"/>
         <!-- No branch prediction mechanism. 
             https://stackoverflow.com/questions/70153316/what-is-conditional-assembly-branch-instruction-duration-for-different-situation#:~:text=1%20Answer&text=The%20Cortex-M4%20does%20not,before%20it%20is%20actually%20taken). -->
 
