@@ -36,7 +36,7 @@
 	
 	<!-- PLATFORM ::= -->
 	<platform>
-        <xi:include href="stm32/pipeline.xml"/>
+        <xi:include href="stm32/m4_pipeline.xml"/>
         <!-- No cache mem.
             https://community.arm.com/support-forums/f/architectures-and-processors-forum/8757/cortex-m4-l1-data-cache-policy -->
         <xi:include href="stm32/m4_memory.xml"/>

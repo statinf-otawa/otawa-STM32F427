@@ -4,7 +4,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(SCRIPT	"stm32")
 set(FILES	
     "stm32/m4_memory.xml"
-    "stm32/pipeline.xml"
+    "stm32/m4_pipeline.xml"
 )
 
 set(SOURCES
