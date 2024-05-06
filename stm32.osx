@@ -26,35 +26,86 @@
 				<help>By setting this to true, all warning messages occured during the execution of the feature xilinx::BBTimerXilinxxx will be written into "program.log" file. "program" is the input binary file of owcet. 
 				</help>
 			</item>
+			
+			<item name="ARCH" type="enum" label="Processor architecture (0 or 1).">
+				<help>Select the Processor architecture type.
+					0: arm cortex M4 (arm v7M-E) STM32F427 or 
+					1: arm cortex M7 (arm v7M-E) STM32H753x
+				</help>
+				<value label="STM32F427-Cortex M4" value="0" default="true"/>
+				<value label="STM32H753x-Cortex M7" value="1"/>
+			</item>
 		</configuration>
 		
 	<!-- IDENTIFICATION ::= -->
 		<id>
             <arch>armv7M-E</arch>
-            <mach>STM32F427-Cortex M4</mach>
+			<xsl:choose>
+				<xsl:when test="$ARCH=0">
+					<mach>STM32F427-Cortex M4</mach>
+				</xsl:when>
+				<xsl:when test="$ARCH=1">
+					<mach>STM32H753x-Cortex M7</mach>
+				</xsl:when>
+			</xsl:choose>
 		</id>
 	
 	<!-- PLATFORM ::= -->
 	<platform>
-        <xi:include href="stm32/m4_pipeline.xml"/>
-        <!-- No cache mem.
-            https://community.arm.com/support-forums/f/architectures-and-processors-forum/8757/cortex-m4-l1-data-cache-policy -->
-        <xi:include href="stm32/m4_memory.xml"/>
-        <!-- No branch prediction mechanism. 
-            https://stackoverflow.com/questions/70153316/what-is-conditional-assembly-branch-instruction-duration-for-different-situation#:~:text=1%20Answer&text=The%20Cortex-M4%20does%20not,before%20it%20is%20actually%20taken). -->
-
+		<xsl:choose>
+			<xsl:when test="$ARCH=0">
+				<xi:include href="stm32/m4_pipeline.xml"/>
+				<!-- No cache mem.
+					https://community.arm.com/support-forums/f/architectures-and-processors-forum/8757/cortex-m4-l1-data-cache-policy -->
+				<xi:include href="stm32/m4_memory.xml"/>
+				<!-- No branch prediction mechanism. 
+					https://stackoverflow.com/questions/70153316/what-is-conditional-assembly-branch-instruction-duration-for-different-situation#:~:text=1%20Answer&text=The%20Cortex-M4%20does%20not,before%20it%20is%20actually%20taken). -->
+			</xsl:when>
+			<xsl:when test="$ARCH=1">
+				<xi:include href="stm32/m7_pipeline.xml"/>
+				<xi:include href="stm32/m7_cache.xml"/>
+				<xi:include href="stm32/m7_bht.xml"/>
+				<xi:include href="stm32/m7_memory.xml"/>
+			</xsl:when>
+		</xsl:choose>
 	</platform>
 
 	<!-- SCRIPT ::= -->
 	<script>
-            <xsl:if test="$EPG!=0">
-                <config name="otawa::GRAPHS_OUTPUT_DIRECTORY" value="ParExeGraph"/>
-            </xsl:if>
-            <config name="otawa::stm32::WRITE_LOG" value="{$LOG}"/>
-            <config name="otawa::ipet::EXPLICIT" value="true"/>
+		<xsl:choose>
+			<xsl:when test="$ARCH=0 or $ARCH=1">
+				<xsl:if test="$EPG!=0">
+					<config name="otawa::GRAPHS_OUTPUT_DIRECTORY" value="ParExeGraph"/>
+				</xsl:if>
+				<config name="otawa::stm32::WRITE_LOG" value="{$LOG}"/>
+				<config name="otawa::ipet::EXPLICIT" value="true"/>
 
-            <step processor="otawa::Virtualizer"/>
-            <step processor="otawa::stm32::BBTimerSTM32M4F"/>
-            <step require="otawa::ipet::WCET_FEATURE"/>	
+				<step processor="otawa::Virtualizer"/>
+				<xsl:choose>
+                    <xsl:when test="$ARCH=0">
+						<step processor="otawa::stm32::BBTimerSTM32M4F"/>
+					</xsl:when>
+					<xsl:when test="$ARCH=1">
+						<step require="otawa::ICACHE_CATEGORY2_FEATURE"/>
+						<step processor="otawa::stm32::PrefetchEventBuilder"/>
+
+						<step require="otawa::hard::BHT_FEATURE"/>
+
+						<step require="otawa::dcache::CLP_ACCESS_FEATURE"/>
+						<step require="otawa::dcache::MAY_FEATURE"/>
+						<step require="otawa::dcache::PERS_FEATURE"/>
+						<step require="otawa::dcache::MUST_FEATURE"/>
+						<step require="otawa::dcache::MULTI_PERS_FEATURE"/>
+						<step require="otawa::dcache::CATEGORY_FEATURE"/>
+						<step require="otawa::dcache::EVENTS_FEATURE"/>
+						<step processor="otawa::stm32::BBTimerSTM32M7F"/>
+					</xsl:when>
+				</xsl:choose>
+				<step require="otawa::ipet::WCET_FEATURE"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:message terminate="no">ARCH not supported or Bad value of ARCH parameter.</xsl:message>
+			</xsl:otherwise>
+		</xsl:choose>
 	</script>
 </otawa-script>
