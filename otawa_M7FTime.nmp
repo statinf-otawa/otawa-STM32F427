@@ -1,0 +1,178 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Unlike the Cortex-M7 cores, The Cortex-M7's cycle timing is not public
+// This file describes the cycle timing based on the work at : https://www.quinapalus.com/cm7cycles.html
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+canon int(32) "M7F_time_alo_without_pc"
+canon int(32) "M7F_time_alo_with_pc"
+canon int(32) "M7F_time_others_1c"
+canon int(32) "M7F_time_others_2c"
+canon int(32) "M7F_time_ld_st"
+canon int(32) "M7F_time_branch"
+canon int(32) "M7F_time_div"
+canon int(32) "M7F_time_dsp_inst"
+canon int(32) "M7F_time_others_sp"
+canon int(32) "M7F_time_mul_sp"
+canon int(32) "M7F_time_vdiv_sp"
+canon int(32) "M7F_time_others_dp"
+canon int(32) "M7F_time_vldm"
+canon int(32) "M7F_time_vldr"
+canon int(32) "M7F_time_vmov"
+canon int(32) "M7F_time_vpop"
+canon int(32) "M7F_time_vpush"
+canon int(32) "M7F_time_vsqrt_32"
+canon int(32) "M7F_time_vstm"
+canon int(32) "M7F_time_vstr"
+
+macro time(x) = "SET_TIME"(x)
+
+// ARM
+
+extend  ADD_imm, ADD_shr, SUB_imm, SUB_shr, SBC_imm, SBC_shr,
+        ORR_imm, ORR_shr, EOR_imm, EOR_shr, BIC_shr, BIC_imm,
+        MOV_imm, MOVW_imm, MOV_shr, MOVT
+    cortexM7F_time = {
+        if rd == 15 then
+            time("M7F_time_alo_with_pc");
+        else
+            time("M7F_time_alo_without_pc");
+        endif;
+    }
+
+extend  TST_imm, TST_shr, TEQ_imm, TEQ_shr, CLZ, UXTB_A1, UBFX, CMP_imm, CMN_shr,
+        MUL, SMULL, UMULL, MLA, MLS, MSR_imm, MSR_shr, MRS, AND_imm, CMP_shr, CMN_imm
+    cortexM7F_time = { time("M7F_time_others_1c"); }
+    
+extend   SMLAL, UMLAL
+    cortexM7F_time = { time("M7F_time_others_2c"); }
+
+extend  LDM, STM, LDRH_imm, LDRH_shr, LDRSB_imm, LDRSB_shr, LDRSH_imm, LDRSH_shr,
+        LDR_imm, LDR_shr, STR_imm, STR_shr, STRH_shr, STRD_imm, STRD_reg_A1
+	cortexM7F_time = { time("M7F_time_ld_st"); }
+
+extend  B_Cond, SWI, BX_ARM
+    cortexM7F_time = { time("M7F_time_branch"); }
+
+
+
+// THUMB        
+extend  ADD_imm1_thumb, ADD_imm2_thumb, ADD_imm3_thumb, ADD_imm4_thumb, ADD_reg1_thumb,
+        SBC_thumb, NEG_thumb, AND_thumb, ORR_thumb,
+        EOR_thumb, ORR_thumb, BIC_thumb,
+        MOV_imm_thumb, MOV_shr2_thumb, MOV_shr_thumb
+    cortexM7F_time = {
+        if rd == 7 then
+            time("M7F_time_alo_with_pc");
+        else
+            time("M7F_time_alo_without_pc");
+        endif;
+    }
+    
+extend  ADC_thumb
+    cortexM7F_time = { 
+        if rd == 7 then
+            time("M7F_time_alo_with_pc");
+        else
+            time("M7F_time_alo_without_pc");
+        endif;
+    }
+
+extend  ADD_imm5_thumb, ADD_reg2_thumb, ADD_imm5_thumb, SUB_thumb, LSR_thumb2, LSR_thumb,
+        CMP_shr2_thumb, CMP_imm_thumb, CMP_shr1_thumb, LSL_thumb, ASR_thumb
+    // Could not read "rd" from here. So we consider the worst case : 'add pc, rx'
+    cortexM7F_time = { time("M7F_time_alo_with_pc"); }
+
+extend  UXTH_thumb, SXTB_thumb, SXTH_thumb, SXTH_thumb, REV_thumb, REV16_thumb,
+        REVSH_thumb, NOP_thumb, NOP_thumb_jer, CMN_shr_thumb,
+        MUL_thumb, MUL_thumb
+    cortexM7F_time = { time("M7F_time_others_1c"); }
+
+extend  LDRB_thumb, LDRH_thumb, LDRS_thumb, LDMIA_thumb, LDR_imm_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_shr_thumb,
+        LDR_imm_thumb, LDR_shr_thumb, LDR_imm2_thumb, LDR_imm3_thumb, LDR_imm_Thumb, LDR_reg_Thumb,
+        STR_reg_Thumb, STR_reg_Thumb_list, STR_imm_thumb, STRB_thumb, STRH_thumb, STR_shr_thumb, STR_imm2_thumb
+	cortexM7F_time = { time("M7F_time_ld_st"); }
+
+extend   B_thumb, BLX_thumb, BX_thumb
+    cortexM7F_time = { time("M7F_time_branch"); }
+
+// THUMB2
+extend  ADD_imm_T3, ADD_imm_T4, ADD_reg_T3, SUB_imm_T3, SUB_imm_T4, SUB_reg_thumb2, 
+        SUB_imm_T3_thumb2, SUB_imm_T4_thumb2, SUB_reg_thumb2, SBC_imm_thumb2, SBC_reg_thumb2, 
+        RSB_reg_thumb2, RSB_imm_T2, RSB_thumb2, EOR_imm_thumb2, EOR_reg_thumb2, EOR_imm_T1, 
+        MVN_ORN_imm_thumb2, MVN_ORN_reg_thumb2, BIC_imm_thumb2, BIC_reg_thumb2, LSL_reg_T2, 
+        LSR_reg_thumb2, ASR_reg_T2, LSR_thumb2, MOV_ORR_imm_T2_thumb2, MOV_imm_T3_thumb2, 
+        MOV_ORR_reg_thumb2, ADC_imm_T1, ADC_reg_T2, EOR_thumb2
+    cortexM7F_time = { 
+        time("M7F_time_alo_with_pc");
+    }
+
+extend  MUL_T2, UMULL_thumb2, MLS_thumb2, MLA_MUL_thumb2
+    cortexM7F_time = { time("M7F_time_others_1c"); }
+
+extend  SDIV_thumb2, UDIV_thumb2
+    cortexM7F_time = { time("M7F_time_div"); }
+
+extend  SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, CMP_imm_thumb2, CMP_reg_thumb2, AND_imm_T1, AND_reg_T2, EOR_imm_thumb2, EOR_reg_thumb2, EOR_imm_T1, 
+        MVN_ORN_imm_thumb2, MVN_ORN_reg_thumb2, BIC_imm_thumb2, BIC_reg_thumb2, LSL_reg_T2, LSR_reg_thumb2, ASR_reg_T2, LSR_thumb2, 
+        ROR_reg_thumb2, CLZ_thumb2, CLZ_T1, UXTAH_UXTH_thumb2, UXTAB_T1, UXTAB16_UXTB16_thumb2, SXTAB16_SXTB16_thumb2, SXTAB_SXTB_thumb2,
+        SXTAH_SXTH_thumb2, BFC_BFI_thumb2, REV16_thumb2, REV_thumb2, REVSH_thumb2, LSL_reg_T2, ASR_thumb2
+    cortexM7F_time = { time("M7F_time_others_1c"); }
+
+extend  LDM_T2, STMDB_T1, LDR_reg_T2, LDRD_imm_T1, Load_Store_dual_exclusive_table_branch_thumb2,
+        LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1   
+    cortexM7F_time = { time("M7F_time_ld_st"); }
+    
+extend  BLX_imm_T2, BL_imm_T1, B_thumb2, B_thumb_T2, TBB_TBH
+    cortexM7F_time = { time("M7F_time_branch"); }
+
+
+extend  SMMLA_SMMUL_thumb2, SMMLS_thumb2, SMLABB_SMULBB_thumb2, SMLAD_SMUAD_thumb2, SMLALBB_thumb2, SMLALD_thumb2,
+        SMLAL_thumb2, SMLAWB_SMULWB_thumb2, SMLSD_SMUSD_thumb2, SMLSLD_thumb2, UMAAL_thumb2, 
+        SSAT_SSAT16_thumb2, USAT_USAT16_thumb2, PKHBT_PKHTB_thumb2, UXTB_T1, UBFX_T1, QADD16_thumb2, QADD8_thumb2, 
+        QADD_thumb2, QASX_thumb2, QDADD_thumb2, QDSUB_thumb2, QSAX_thumb2, QSUB16_thumb2, QSUB8_thumb2, QSUB_thumb2,
+        UHASX_thumb2, UHSAX_thumb2, USAX_thumb2
+    cortexM7F_time = { time("M7F_time_dsp_inst"); }
+
+// FP 
+
+extend  VADD_fp_A1_double, VADD_fp_A1_quad, VADD_fp_A2_32, VADD_fp_T1_double, VADD_fp_T1_quad, VADD_fp_T2_32, VCMP_VCMPE_32_T1,
+        VCMP_VCMPE_32_T1, VCMP_VCMPE_32_T2, VSUB_fp_T1
+    cortexM7F_time = { time("M7F_time_others_sp"); } 
+    
+ 
+extend  VMUL_fp_A1_double, VMUL_fp_A1_quad, VMUL_fp_A2_32, VMUL_fp_T2_32, VMUL_fp_T1_quad, VMUL_fp_T1_double, VNMLA_VNMLS_VNMUL_32_T2,
+        VMLA_VMLS_fp_A1_double, VMLA_VMLS_fp_A1_quad, VMLA_VMLS_fp_A2_32, VMLA_VMLS_fp_T1_double, VMLA_VMLS_fp_T1_quad, VMLA_VMLS_fp_T2_32
+    cortexM7F_time = { time("M7F_time_mul_sp"); }     
+
+extend  VDIV_A1_32, VDIV_T1_32
+    cortexM7F_time = { time("M7F_time_vdiv_sp"); }
+
+extend  VADD_fp_A2_64, VADD_fp_T2_64, VCMP_VCMPE_64_T1, VCVT_T1_float_int, VCVT_T1_float_fix, 
+        VCMP_VCMPE_64_T2, VCVT_arm_if_A1, VCVT_arm_ff_A1, VCVT_T1_double_single, VSUB_fp_A1, VSUB_fp_T1
+    cortexM7F_time = { time("M7F_time_others_dp"); } // TODO: add more precison
+
+extend  VLDM_arm_A1_01, VLDM_arm_A1_10, VLDM_arm_A2_01, VLDM_arm_A2_10, 
+        VLDMDB_thumb_T1_W1, VLDMDB_thumb_T2_W1, VLDMIA_thumb_T1_W1, VLDMIA_thumb_T2_W1, VLDMIA_thumb_T1_W0, VLDMIA_thumb_T2_W0 // all considered as 'vldm.f64'. TODO: add more precison
+    cortexM7F_time = { time("M7F_time_vldm"); }
+
+extend  VLDR_A1, VLDR_A2, VLDR_T1, VLDR_T2 // all considered as 'vldr.f64'. TODO: add more precison
+    cortexM7F_time = { time("M7F_time_vldr"); }
+
+extend  VMOV_reg_A, VMOV_arm_imm, VMOV_arm_creg_spreg, VMOV_arm_2creg_dereg, VMOV_thumb_imm, VMOV_thumb_reg, VMOV_thumb_creg_spreg, VMOV_thumb_2creg_dereg
+    cortexM7F_time = { time("M7F_time_vmov"); }
+
+extend  VPOP_A1, VPOP_A2
+    cortexM7F_time = { time("M7F_time_vpop"); } // TODO: add more precison
+
+extend  VPUSH_T1, VPUSH_T2
+    cortexM7F_time = { time("M7F_time_vpush"); } // TODO: add more precison
+
+extend  VSQRT_32_T1
+    cortexM7F_time = { time("M7F_time_vsqrt_32"); } 
+
+extend  VSTM_A1_01, VSTM_A1_10, VSTM_A2_01, VSTM_A2_10 // all considered as 'vstm.f64'. TODO: add more precison
+    cortexM7F_time = { time("M7F_time_vstm"); } 
+ 
+extend  VSTR_T1, VSTR_T2, VSTR_A1, VSTR_A2 // all considered as 'vstr.f64'. TODO: add more precison
+    cortexM7F_time = { time("M7F_time_vstr"); }
