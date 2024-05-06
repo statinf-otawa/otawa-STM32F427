@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cache-config>
+	<!-- DOCUMENTATION
+		https://www.st.com/content/ccc/resource/training/technical/product_training/group0/8d/11/c5/6d/be/15/4f/63/STM32H7-System-ARM_Cortex_M7_M7/files/STM32H7-System-ARM_Cortex_M7_M7.pdf/_jcr_content/translations/en.STM32H7-System-ARM_Cortex_M7_M7.pdf
+	-->
+	
+	<icache>						<!-- 16 KB -->
+		<block_bits>5</block_bits>	<!-- 32 B block /-->
+		<way_bits>2</way_bits>		<!-- 4 ways  -->
+		<row_bits>7</row_bits>		<!-- 128 sets -->
+	</icache>
+	<dcache>						<!-- 128 B -->
+		<block_bits>5</block_bits>	<!-- 32 B block /-->
+		<way_bits>2</way_bits>		<!-- 4 ways  -->
+		<row_bits>7</row_bits>		<!-- 128 sets -->
+	</dcache>
+</cache-config>
