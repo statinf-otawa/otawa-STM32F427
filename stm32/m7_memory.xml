@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<memory
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <!-- DOCUMENTATION
+        STM32H742, STM32H743/753 and STM32H750 Value line advanced Arm®-based 32-bit MCUs
+        
+        https://www.st.com/resource/en/product_training/STM32F7_System_Core.pdf
+	-->
+    <!-- Note: the latency values could not be found in official datasheets. -->
+    <banks> 
+        <bank>
+            <name>ExternalMemories</name> 
+            <address><offset>0x60000000</offset></address>
+            <size>0x40000000</size> 
+            <type>IO</type> 
+            <write_latency>200</write_latency>
+            <read_latency>200</read_latency>
+            <latency>200</latency>
+        </bank>
+        
+        <bank>
+            <name>ExternalDevices</name> 
+            <address><offset>0xC3FFFFFF</offset></address>
+            <size>0x14000000</size> 
+            <type>IO</type> 
+            <write_latency>200</write_latency>
+            <read_latency>200</read_latency>
+            <latency>200</latency>
+        </bank>
+
+        <bank>
+            <name>DTCM</name> 
+            <address><offset>0x20000000</offset></address>
+            <size>0x20000</size>
+            <type>SPM</type> 
+            <write_latency>10</write_latency>
+            <read_latency>10</read_latency>
+            <latency>10</latency>
+            <writable>true</writable>
+            <cacheable>true</cacheable>
+        </bank>
+        
+        <bank>
+            <name>AXI_SRAM</name> 
+            <address><offset>0x24000000</offset></address>
+            <size>0x80000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <writable>true</writable>
+            <cacheable>false</cacheable>
+        </bank>
+        
+        <bank>
+            <name>SRAM1ToSRAM3</name> 
+            <address><offset>0x30000000</offset></address>
+            <size>0x48000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <writable>true</writable>
+            <cacheable>true</cacheable>
+        </bank>
+        
+        <bank>
+            <name>SRAM4</name> 
+            <address><offset>0x38000000</offset></address>
+            <size>0x10000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <writable>true</writable>
+            <cacheable>true</cacheable>
+        </bank>
+        
+        <bank>
+            <name>Backup_SRAM</name> 
+            <address><offset>0x38800000</offset></address>
+            <size>0x1000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <writable>true</writable>
+            <cachable>true</cachable>
+        </bank>
+        
+        <bank>
+            <name>ITCM</name> 
+            <address><offset>0x00000000</offset></address>
+            <size>0x10000</size>
+            <type>SPM</type> 
+            <write_latency>12</write_latency>
+            <read_latency>12</read_latency>
+            <latency>12</latency>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>FlashMemoryBank1_Bank2</name> 
+            <address><offset>0x08000000</offset></address>
+            <size>0x200000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+            <writable>true</writable>
+        </bank>
+
+        <bank>
+            <name>SysMem1</name> 
+            <address><offset>0x1FF00000</offset></address>
+            <size>0x20000</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+        </bank>
+        
+        <bank>
+            <name>SysMem2</name> 
+            <address><offset>0x1FF40000</offset></address>
+            <size>0x6FFFF</size>
+            <type>DRAM</type> 
+            <write_latency>50</write_latency>
+            <read_latency>50</read_latency>
+            <latency>50</latency>
+        </bank>
+    </banks>
+</memory>
