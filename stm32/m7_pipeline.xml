@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processor class="otawa::hard::Processor"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	
+	<!-- DOCUMENTATION
+		
+	-->
+	<arch>armv7E-M</arch>
+	<model>STM32F427</model>
+	<stages> 
+        <stage id="FE">
+			<name>PFU</name>
+			<type>FETCH</type>
+            <width>2</width>
+		</stage>
+		<stage id="DE">
+			<name>Decode</name>
+			<type>LAZY</type>
+            <width>2</width>
+		</stage>
+        <stage id="DPU">
+			<name>DPU</name>
+			<type>EXEC</type>
+			<fus>
+				<fu id="FPU"> <!-- FPU -->
+					<name>FPU</name>
+				</fu>
+                <fu id="ALU"> <!-- Two ALUs, with one ALU capable of executing SIMD operations -->
+					<name>ALU</name>
+                    <width>2</width>
+				</fu>
+				<fu id="BRANCH">
+					<name>BRANCH</name>
+					<width>2</width> <!-- As a branch can also be dual issued, it can be executed in parallel with computation. -->
+				</fu>
+				<fu id="LSU">
+					<name>LSU</name>
+                    <mem>true</mem>
+                    <width>2</width>
+				</fu>
+			</fus>
+			<dispatch>
+				<inst> <type>IS_FLOAT</type> <fu ref="FPU"/> </inst>
+                <inst> <type>IS_MEM|IS_LOAD|IS_STORE</type> <fu ref="LSU"/> </inst>
+				<inst> <type>IS_CONTROL|IS_CALL|IS_RETURN|IS_INDIRECT</type> <fu ref="BRANCH"/> </inst>
+				<inst> <type></type> <fu ref="ALU"/> </inst>
+			</dispatch>
+        </stage>
+        <stage id="WR">
+			<name>Write</name>
+			<type>COMMIT</type>
+			<mem>true</mem>
+            <latency>0</latency>
+		</stage>
+	</stages>
+</processor>
