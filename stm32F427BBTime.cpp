@@ -27,7 +27,7 @@
 #include <elm/io/FileOutput.h>
 #include <elm/data/Vector.h>
 #include "M4FCycleTiming.h"
-#include "armCortexM4_operand.h"
+#include "arm_operand.h"
 
 namespace otawa { namespace stm32 {
     using namespace elm::io;
@@ -124,6 +124,37 @@ namespace otawa { namespace stm32 {
                 prev_inst = *inst;
             }
         }
+		
+		void addEdgesForMemoryOrder() override {
+			ParExeGraph::addEdgesForMemoryOrder();
+			static string memory_order = "memory order";
+			auto stage = _microprocessor->execStage();
+
+			// looking in turn each FU
+			for (int i=0 ; i<stage->numFus() ; i++) {
+				ParExeStage *fu_stage = stage->fu(i)->firstStage();
+				ParExeNode * previous_load = nullptr;
+
+				// look for each node of this FU
+				for (int j=0 ; j<fu_stage->numNodes() ; j++){
+					ParExeNode *node = fu_stage->node(j);
+
+					// found a load instruction
+					if (node->inst()->inst()->isLoad()) {
+
+						if(previous_load) {
+							if (previous_load->inst()->inst() != node->inst()->inst())
+								new ParExeEdge(previous_load, node, ParExeEdge::SOLID, 0, memory_order);
+						}
+						
+						// current node becomes the new previous load
+						for (InstNodeIterator last_node(node->inst()); last_node() ; last_node++)
+							if (last_node->stage()->category() == ParExeStage::FU)
+								previous_load = *last_node;
+					}
+				}
+			}
+		}
         
         void build() override {
 
