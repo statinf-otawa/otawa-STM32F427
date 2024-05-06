@@ -5,14 +5,23 @@ set(SCRIPT	"stm32")
 set(FILES	
     "stm32/m4_memory.xml"
     "stm32/m4_pipeline.xml"
+	
+	"stm32/m7_memory.xml"
+    "stm32/m7_pipeline.xml"
+	"stm32/m7_cache.xml"
+    "stm32/m7_bht.xml"
 )
 
 set(SOURCES
 	hook.cpp
     stm32F427BBTime.cpp
+	stm32H753xBBTime.cpp
     armCortexM4F_time.h
+	armCortexM7F_time.h
     M4FCycleTiming.h
-    armCortexM4_operand.h
+	M7FCycleTiming.h
+    arm_operand.h
+	preFetchAnalysis.cpp
 )
 set(ARM_HOME	"${CMAKE_SOURCE_DIR}/../armv7t")
 set(GLISS_HOME 	"${CMAKE_SOURCE_DIR}/../gliss2")
@@ -55,9 +64,16 @@ add_custom_command(
 )
 
 add_custom_command(
-	OUTPUT "armCortexM4_operand.h" DEPENDS "otawa_operand.tpl" "otawa_operand.nmp" ${IRG}
+	OUTPUT "armCortexM7F_time.h" DEPENDS "otawa_M7FTime.tpl" "otawa_M7FTime.nmp" ${IRG}
 	COMMAND ${GLISS_ATTR}
-	ARGS ${IRG} -o armCortexM4_operand.h -a arm7_op -t "otawa_operand.tpl" -d "SET_OP(1);" -e otawa_operand.nmp -p
+	ARGS ${IRG} -o armCortexM7F_time.h -a cortexM7F_time -t "otawa_M7FTime.tpl" -d "SET_TIME(M7F_time_unknown);" -e otawa_M7FTime.nmp -p
+	VERBATIM
+)
+
+add_custom_command(
+	OUTPUT "arm_operand.h" DEPENDS "otawa_operand.tpl" "otawa_operand.nmp" ${IRG}
+	COMMAND ${GLISS_ATTR}
+	ARGS ${IRG} -o arm_operand.h -a arm7_op -t "otawa_operand.tpl" -d "SET_OP(1);" -e otawa_operand.nmp -p
 	VERBATIM
 )
 
