@@ -104,7 +104,7 @@ extend  STRD_imm, STRD_reg_A1
     cortexM4F_time = { time("M4F_time_strd_ldrd"); }
 
 extend  LDREX_A1, LDREXB_A1, LDREXD_A1, LDREXH_A1
-    cortexA9_time = { time("M4F_time_semaphore"); }
+    cortexM4F_time = { time("M4F_time_semaphore"); }
 
 extend  B_Cond, SWI, BX_ARM
     cortexM4F_time = { time("M4F_time_branch_normal"); }
@@ -257,7 +257,7 @@ extend  LDRD_imm_T1, Load_Store_dual_exclusive_table_branch_thumb2
 
 
 extend  LDREXB_T1, LDREXD_T1, LDREXH_T1, LDREX_T1, STREXB_T1, STREXD_T1, STREXH_T1, STREX_T1
-    cortexA9_time = { time("M4F_time_semaphore"); }
+    cortexM4F_time = { time("M4F_time_semaphore"); }
 
 
 extend  BLX_imm_T2, BL_imm_T1, B_thumb2, CLZ_thumb2, EOR_thumb2, LSL_reg_T2, LSR_thumb2, B_thumb_T2
