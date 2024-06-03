@@ -68,9 +68,9 @@
             <address><offset>0x40000000</offset></address> <!-- Range is 0x4000_0000 to 0x4000_7FFF -->
             <size>0x8000</size> <!-- 32 Kbytes -->
             <type>IO</type> 
-            <write_latency>200</write_latency>
-            <read_latency>200</read_latency>
-            <latency>200</latency>
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
         </bank>
 
         <bank>
