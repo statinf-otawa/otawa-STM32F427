@@ -14,9 +14,9 @@
             <address><offset>0xE0100000</offset></address>
             <size>0x1FF00000</size>
             <type>IO</type> 
-            <write_latency>50</write_latency>
-            <read_latency>50</read_latency>
-            <latency>50</latency>
+            <write_latency>200</write_latency>
+            <read_latency>200</read_latency>
+            <latency>200</latency>
         </bank>
 
         <bank>
@@ -24,9 +24,9 @@
             <address><offset>0xE0000000</offset></address>
             <size>0x100000</size>
             <type>IO</type> 
-            <write_latency>50</write_latency>
-            <read_latency>50</read_latency>
-            <latency>50</latency>
+            <write_latency>200</write_latency>
+            <read_latency>200</read_latency>
+            <latency>200</latency>
         </bank>
 
         <bank>
@@ -65,9 +65,9 @@
             <address><offset>0x20000000</offset></address>
             <size>0x20000000</size>
             <type>SPM</type> 
-            <write_latency>50</write_latency>
-            <read_latency>50</read_latency>
-            <latency>50</latency>
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
             <cacheable>true</cacheable>
         </bank>
         
@@ -76,9 +76,9 @@
             <address><offset>0x00000000</offset></address>
             <size>0x20000000</size>
             <type>SPM</type> 
-            <write_latency>50</write_latency>
-            <read_latency>50</read_latency>
-            <latency>50</latency>
+            <write_latency>100</write_latency>
+            <read_latency>100</read_latency>
+            <latency>100</latency>
             <cacheable>true</cacheable>
         </bank>
     </banks>
